@@ -83,6 +83,8 @@ async fn load_structure(
             .map_err(|e| format!("Failed to parse GRO: {}", e))?,
         "lammpstrj" | "lammps" => parsers::lammps::parse_lammps(&path)
             .map_err(|e| format!("Failed to parse LAMMPS: {}", e))?,
+        "cif" => parsers::cif::parse_cif(&path)
+            .map_err(|e| format!("Failed to parse CIF: {}", e))?,
         _ => return Err(format!("Unsupported format: {}", format)),
     };
 
