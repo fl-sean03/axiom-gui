@@ -22,8 +22,8 @@ thiserror = "2.0"
 anyhow = "1.0"
 png = "0.17"
 
-# Axiom core - relative path to axiom-core crate
-axiom-core = { path = "../../axiom-core" }
+# Axiom core - relative path to axiom-core crate (in repository root)
+axiom-core = { path = "../axiom-core" }
 
 [features]
 # This feature is used for production builds or when a dev server is not specified, DO NOT REMOVE!!

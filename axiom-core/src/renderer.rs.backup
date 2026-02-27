@@ -1,0 +1,196 @@
+// GPU-based renderer using wgpu (WebGPU)
+// Phase 2: Imposter sphere rendering with headless mode
+
+use crate::atoms::Atoms;
+use crate::errors::{AxiomError, Result};
+use wgpu;
+
+/// Renderer configuration
+pub struct RendererConfig {
+    pub width: u32,
+    pub height: u32,
+    pub headless: bool,
+}
+
+impl Default for RendererConfig {
+    fn default() -> Self {
+        Self {
+            width: 1920,
+            height: 1080,
+            headless: true,
+        }
+    }
+}
+
+/// Main renderer struct
+pub struct Renderer {
+    device: wgpu::Device,
+    queue: wgpu::Queue,
+    config: RendererConfig,
+    // Camera state
+    camera_position: [f32; 3],
+    camera_target: [f32; 3],
+    camera_up: [f32; 3],
+}
+
+impl Renderer {
+    /// Initialize the renderer (headless or windowed)
+    pub async fn new(config: RendererConfig) -> Result<Self> {
+        // Create wgpu instance
+        let instance = wgpu::Instance::new(&wgpu::InstanceDescriptor {
+            backends: wgpu::Backends::all(),
+            ..Default::default()
+        });
+
+        // Request adapter (GPU)
+        let adapter = instance
+            .request_adapter(&wgpu::RequestAdapterOptions {
+                power_preference: wgpu::PowerPreference::HighPerformance,
+                compatible_surface: None, // Headless
+                force_fallback_adapter: false,
+            })
+            .await
+            .ok_or_else(|| AxiomError::RenderError("Failed to find GPU adapter".to_string()))?;
+
+        // Request device and queue
+        let (device, queue) = adapter
+            .request_device(
+                &wgpu::DeviceDescriptor {
+                    label: Some("Axiom Renderer Device"),
+                    required_features: wgpu::Features::empty(),
+                    required_limits: wgpu::Limits::default(),
+                    memory_hints: wgpu::MemoryHints::Performance,
+                },
+                None,
+            )
+            .await
+            .map_err(|e| AxiomError::RenderError(format!("Failed to create device: {}", e)))?;
+
+        // Default camera position (looking down -Z axis)
+        let camera_position = [0.0, 0.0, 50.0];
+        let camera_target = [0.0, 0.0, 0.0];
+        let camera_up = [0.0, 1.0, 0.0];
+
+        Ok(Self {
+            device,
+            queue,
+            config,
+            camera_position,
+            camera_target,
+            camera_up,
+        })
+    }
+
+    /// Synchronous initialization wrapper
+    pub fn new_blocking(config: RendererConfig) -> Result<Self> {
+        pollster::block_on(Self::new(config))
+    }
+
+    /// Set camera position
+    pub fn set_camera(&mut self, position: [f32; 3], target: [f32; 3], up: [f32; 3]) {
+        self.camera_position = position;
+        self.camera_target = target;
+        self.camera_up = up;
+    }
+
+    /// Reset camera to default
+    pub fn reset_camera(&mut self) {
+        self.camera_position = [0.0, 0.0, 50.0];
+        self.camera_target = [0.0, 0.0, 0.0];
+        self.camera_up = [0.0, 1.0, 0.0];
+    }
+
+    /// Render atoms to PNG (Phase 2 MVP)
+    pub fn render(&self, _atoms: &Atoms) -> Result<Vec<u8>> {
+        // TODO: Implement imposter sphere rendering
+        // For now, return a simple test image
+        let width = self.config.width;
+        let height = self.config.height;
+
+        // Create a simple gradient test image
+        let mut img_buffer = image::RgbaImage::new(width, height);
+        for (x, y, pixel) in img_buffer.enumerate_pixels_mut() {
+            let r = (x as f32 / width as f32 * 255.0) as u8;
+            let g = (y as f32 / height as f32 * 255.0) as u8;
+            let b = 128;
+            *pixel = image::Rgba([r, g, b, 255]);
+        }
+
+        // Encode to PNG
+        let mut png_bytes = Vec::new();
+        img_buffer
+            .write_to(
+                &mut std::io::Cursor::new(&mut png_bytes),
+                image::ImageFormat::Png,
+            )
+            .map_err(|e| AxiomError::RenderError(format!("PNG encoding failed: {}", e)))?;
+
+        Ok(png_bytes)
+    }
+
+    /// Save rendered image to file
+    pub fn save_image(&self, atoms: &Atoms, path: &str) -> Result<()> {
+        let png_bytes = self.render(atoms)?;
+        std::fs::write(path, png_bytes)
+            .map_err(|e| AxiomError::RenderError(format!("Failed to write file: {}", e)))?;
+        Ok(())
+    }
+
+    /// Get device info (for debugging)
+    pub fn device_info(&self) -> String {
+        format!(
+            "Axiom Renderer\nResolution: {}x{}\nMode: {}",
+            self.config.width,
+            self.config.height,
+            if self.config.headless { "headless" } else { "windowed" }
+        )
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_renderer_init() {
+        let config = RendererConfig {
+            width: 800,
+            height: 600,
+            headless: true,
+        };
+
+        let renderer = Renderer::new_blocking(config);
+        assert!(renderer.is_ok(), "Renderer should initialize successfully");
+    }
+
+    #[test]
+    fn test_camera_controls() {
+        let config = RendererConfig::default();
+        let mut renderer = Renderer::new_blocking(config).unwrap();
+
+        // Test set_camera
+        renderer.set_camera([10.0, 20.0, 30.0], [0.0, 0.0, 0.0], [0.0, 1.0, 0.0]);
+        assert_eq!(renderer.camera_position, [10.0, 20.0, 30.0]);
+
+        // Test reset_camera
+        renderer.reset_camera();
+        assert_eq!(renderer.camera_position, [0.0, 0.0, 50.0]);
+    }
+
+    #[test]
+    fn test_render_test_image() {
+        let config = RendererConfig {
+            width: 100,
+            height: 100,
+            headless: true,
+        };
+        let renderer = Renderer::new_blocking(config).unwrap();
+
+        // Create empty atoms (just testing renderer, not actual rendering yet)
+        let atoms = Atoms::new();
+
+        let png_bytes = renderer.render(&atoms).unwrap();
+        assert!(!png_bytes.is_empty(), "PNG should not be empty");
+        assert!(png_bytes.starts_with(b"\x89PNG"), "Should be valid PNG");
+    }
+}

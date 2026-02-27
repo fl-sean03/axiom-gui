@@ -1,0 +1,45 @@
+[package]
+name = "axiom-core"
+version = "0.1.0"
+edition = "2021"
+authors = ["Heinz Lab Agent"]
+description = "Core library for Axiom atomic visualization"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+# Core functionality
+nalgebra = "0.33"          # Linear algebra (vectors, matrices)
+ndarray = "0.16"           # N-dimensional arrays
+
+# Performance
+rayon = "1.10"             # Data parallelism
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Error handling
+thiserror = "2.0"
+anyhow = "1.0"
+
+# File I/O
+memmap2 = "0.9"            # Memory-mapped file I/O
+
+# GPU Rendering (Phase 2)
+wgpu = "24.0"              # WebGPU implementation
+pollster = "0.4"           # Async runtime for wgpu init
+bytemuck = { version = "1.18", features = ["derive"] }  # Safe byte casting for GPU buffers
+image = "0.25"             # PNG encoding/decoding
+
+[dev-dependencies]
+criterion = "0.5"          # Benchmarking
+approx = "0.5"             # Floating-point comparisons
+
+# [[bench]]
+# name = "parsers"
+# harness = false
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
