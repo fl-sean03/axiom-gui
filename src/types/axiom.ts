@@ -106,8 +106,11 @@ export const ELEMENT_SYMBOLS: Record<number, string> = {
   20: 'Ca',
   22: 'Ti',
   26: 'Fe',
+  27: 'Co', // Cobalt
   29: 'Cu',
   30: 'Zn',
+  35: 'Br', // Bromine
+  82: 'Pb', // Lead
   // Add more as needed
 }
 
@@ -128,6 +131,9 @@ export const ELEMENT_COLORS: Record<number, string> = {
   20: '#3DFF00', // Ca - green
   22: '#BFC2C7', // Ti - gray
   26: '#E06633', // Fe - orange
+  27: '#F090A0', // Co - pink
   29: '#C88033', // Cu - copper
   30: '#7D80B0', // Zn - blue-gray
+  35: '#A62929', // Br - dark red
+  82: '#575961', // Pb - dark gray
 }

@@ -774,6 +774,14 @@ impl Renderer {
 
         let width = self.config.width;
         let height = self.config.height;
+
+        // VALIDATION: Prevent "Zero width not allowed" PNG encoding error
+        if width == 0 || height == 0 {
+            return Err(AxiomError::RenderError(format!(
+                "Invalid render dimensions: {}x{} (width and height must be > 0)",
+                width, height
+            )));
+        }
         let ssaa_factor = self.config.ssaa_factor;
         let render_width = width * ssaa_factor;
         let render_height = height * ssaa_factor;
@@ -890,6 +898,14 @@ impl Renderer {
 
         let width = self.config.width;
         let height = self.config.height;
+
+        // VALIDATION: Prevent "Zero width not allowed" PNG encoding error
+        if width == 0 || height == 0 {
+            return Err(AxiomError::RenderError(format!(
+                "Invalid render dimensions: {}x{} (width and height must be > 0)",
+                width, height
+            )));
+        }
 
         eprintln!("[CPU Renderer] Starting render: {}x{}, {} atoms", width, height, atoms.len());
         eprintln!("[CPU Renderer] Camera: pos=({}, {}, {}), target=({}, {}, {})",

@@ -2,7 +2,7 @@ import { Toolbar } from './components/Toolbar'
 import { Sidebar } from './components/Sidebar'
 import { Canvas } from './components/Canvas'
 import { StatusBar } from './components/StatusBar'
-import { AutoLoadTest } from './components/AutoLoadTest'
+// import { AutoLoadTest } from './components/AutoLoadTest' // REMOVED: Causes error on first launch
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { KeyboardShortcutsHelp } from './components/KeyboardShortcutsHelp'
 import { RecentFilesProvider } from './contexts/RecentFilesContext'
@@ -23,8 +23,8 @@ function App() {
     <ErrorBoundary>
       <RecentFilesProvider>
       <div className="h-screen w-screen flex flex-col overflow-hidden">
-        {/* Auto-load test component (for headless testing) */}
-        <AutoLoadTest />
+        {/* Auto-load test component removed - caused error on first launch */}
+        {/* <AutoLoadTest /> */}
 
         {/* Top toolbar */}
         <Toolbar />

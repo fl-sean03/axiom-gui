@@ -352,6 +352,14 @@ impl Renderer {
         let width = self.config.width;
         let height = self.config.height;
 
+        // VALIDATION: Prevent "Zero width not allowed" PNG encoding error
+        if width == 0 || height == 0 {
+            return Err(AxiomError::RenderError(format!(
+                "Invalid render dimensions: {}x{} (width and height must be > 0)",
+                width, height
+            )));
+        }
+
         // If no atoms, return blank image
         if atoms.len() == 0 {
             let img_buffer = image::RgbaImage::from_pixel(width, height, image::Rgba([0, 0, 0, 255]));
