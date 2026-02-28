@@ -44,9 +44,19 @@ jobs:
         run: |
           # Add ARM64 architecture
           sudo dpkg --add-architecture arm64
+
+          # Configure APT sources for multi-arch (amd64 + arm64)
+          # Restrict main repos to amd64 only
           sudo sed -i 's/deb http/deb [arch=amd64] http/g' /etc/apt/sources.list
+          # Also handle security.ubuntu.com and any https sources
+          sudo sed -i 's/deb \[arch=amd64\] https/deb [arch=amd64] https/g' /etc/apt/sources.list
+
+          # Add ARM64 sources from ports.ubuntu.com
           echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports/ jammy main restricted universe multiverse" | sudo tee -a /etc/apt/sources.list
           echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports/ jammy-updates main restricted universe multiverse" | sudo tee -a /etc/apt/sources.list
+          echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports/ jammy-security main restricted universe multiverse" | sudo tee -a /etc/apt/sources.list
+          echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports/ jammy-backports main restricted universe multiverse" | sudo tee -a /etc/apt/sources.list
+
           sudo apt-get update
 
           # Install cross-compilation toolchain
