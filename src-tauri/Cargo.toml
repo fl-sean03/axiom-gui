@@ -1,6 +1,6 @@
 [package]
 name = "axiom-gui"
-version = "0.2.5"
+version = "0.2.6"
 description = "Desktop GUI for Axiom molecular visualization"
 authors = ["Heinz Lab Agent"]
 license = "MIT OR Apache-2.0"
