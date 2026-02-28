@@ -306,8 +306,11 @@ fn symbol_to_atomic_number(symbol: &str) -> u8 {
         "CA" => 20,
         "TI" => 22,
         "FE" => 26,
+        "CO" => 27, // Cobalt
         "CU" => 29,
         "ZN" => 30,
+        "BR" => 35, // Bromine
+        "PB" => 82, // Lead
         _ => 0, // Unknown element
     }
 }
